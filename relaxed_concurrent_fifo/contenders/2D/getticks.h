@@ -62,6 +62,14 @@ getticks()
 {
   return get_cycle_count();
 }
+#elif defined(__aarch64__)
+static inline ticks
+getticks(void)
+{
+  ticks ret;
+  __asm__ __volatile__ ("mrs %0, cntvct_el0" : "=r" (ret));
+  return ret;
+}
 #endif
 
 #ifdef __cplusplus

@@ -237,9 +237,9 @@ static uint64_t lcrq_get(queue_t * q, handle_t * handle) {
     RingQueue *next;
 
     // Not in the paper, but added for better performance at nearly empty queues
-    // Requires x86 memory order and volatile to not re-order these two reads
-    int64_t head = rq->head;
-    int64_t tail = rq->tail;
+    // Requires the two reads not to be reordered: acquire loads (plain loads on x86, ordered loads elsewhere)
+    int64_t head = __atomic_load_n(&rq->head, __ATOMIC_ACQUIRE);
+    int64_t tail = __atomic_load_n(&rq->tail, __ATOMIC_ACQUIRE);
     if (head >= tail && rq->next == NULL) return -1;
 
     uint64_t h = FAI_U64(&rq->head);

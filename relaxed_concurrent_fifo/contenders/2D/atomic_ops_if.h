@@ -203,6 +203,7 @@
 		return (uint8_t) oldval;
 	}
 	//Taken from https://github.com/chaoran/fast-wait-free-queue/blob/master/primitives.h
+	#if defined(__x86_64__)
 	#define BTAS(ptr, bit) ({ \
   		char __ret; \
   		__asm__ __volatile__( \
@@ -210,6 +211,11 @@
       	: "+m" (*ptr), "=r" (__ret) : "ri" (bit) : "cc" ); \
   		__ret; \
 	})
+	#else
+	// Same semantics: sets the bit and returns nonzero if it was not set before
+	#define BTAS(ptr, bit) \
+		((__atomic_fetch_or((ptr), (1ull << (bit)), __ATOMIC_SEQ_CST) & (1ull << (bit))) == 0)
+	#endif
 
 	//atomic operations interface
 	//Compare-and-swap
