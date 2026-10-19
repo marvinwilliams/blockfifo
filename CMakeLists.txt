@@ -1,18 +1,25 @@
-﻿# CMakeList.txt : Top-level CMake project file, do global configuration
-# and include sub-projects here.
-#
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required(VERSION 3.16)
 
-# Set the C++ standard to C++20.
-set_property (GLOBAL PROPERTY CMAKE_CXX_STANDARD 23)
+project(
+  blockfifo
+  VERSION 1.0.0
+  LANGUAGES CXX)
 
-# Enable Hot Reload for MSVC compilers if supported.
-if (POLICY CMP0141)
-  cmake_policy(SET CMP0141 NEW)
-  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
-endif()
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
 
-project ("relaxed_concurrent_fifo")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(utils)
+disable_intree_builds()
 
-# Include sub-projects.
-add_subdirectory ("relaxed_concurrent_fifo")
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+add_library(blockfifo INTERFACE)
+
+target_include_directories(
+  blockfifo INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+target_compile_features(blockfifo INTERFACE cxx_std_20)
+
+add_library(blockfifo::blockfifo ALIAS blockfifo)
