@@ -14,8 +14,8 @@
 #include <random>
 #include <type_traits>
 
-#include "atomic_bitset.hpp"
-#include "atomic_bitset_no_epoch.hpp"
+#include "util/atomic_bitset.hpp"
+#include "util/atomic_bitset_no_epoch.hpp"
 
 #ifndef BBQ_LOG_WINDOW_MOVE
 #define BBQ_LOG_WINDOW_MOVE 0
@@ -136,7 +136,7 @@ class block_based_queue {
         auto index = window_to_index(window_index);
         std::size_t free_bit =
             filled_set
-                .template claim_bit<claim_value::ZERO, claim_mode::READ_WRITE>(
+                .template claim_bit<claim_type::value::ZERO, claim_type::mode::READ_WRITE>(
                     index, starting_bit, epoch, std::memory_order_relaxed);
         if (free_bit == std::numeric_limits<std::size_t>::max()) {
             return nullptr;
@@ -153,7 +153,7 @@ class block_based_queue {
         auto index = window_to_index(window_index);
         std::size_t free_bit =
             touched_set
-                .template claim_bit<claim_value::ONE, claim_mode::READ_WRITE>(
+                .template claim_bit<claim_type::value::ONE, claim_type::mode::READ_WRITE>(
                     index, starting_bit, std::memory_order_relaxed);
         if (free_bit == std::numeric_limits<std::size_t>::max()) {
             return nullptr;
@@ -166,7 +166,7 @@ class block_based_queue {
         auto index = window_to_index(window_index);
         std::size_t free_bit =
             filled_set
-                .template claim_bit<claim_value::ONE, claim_mode::READ_ONLY>(
+                .template claim_bit<claim_type::value::ONE, claim_type::mode::READ_ONLY>(
                     index, starting_bit, epoch, std::memory_order_relaxed);
         if (free_bit == std::numeric_limits<std::size_t>::max()) {
             return nullptr;
